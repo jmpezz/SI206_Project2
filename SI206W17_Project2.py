@@ -11,7 +11,6 @@
 
 ## Import statements
 import unittest
-import urllib
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -28,12 +27,8 @@ from bs4 import BeautifulSoup
 ## find_urls("the internet is awesome #worldwideweb") should return [], empty list
 
 def find_urls(s):
-    URL_lst = []
-    line = re.findall('(ht\S+?.[^ ]*\s',s)
-    for link in line:
-        if '.' not in link:
-            line.remove(link)
-    return(x)
+    url_list = re.findall('http[s]?://\S*\.\S{2,}', s)
+    return url_list
 
 
 ## PART 2  - Define a function grab_headlines.
@@ -42,9 +37,14 @@ def find_urls(s):
 ## http://www.michigandaily.com/section/opinion
 
 def grab_headlines():
-    pass
-    #Your code here
+    url = 'file:///Users/juliapezzullo/Downloads/SI206/Project2/opinion.html'
+    result = requests.get(url)
 
+    soup = BeautifulSoup(result.text, 'html.parser')
+    tags = soup(class_ = 'view-most-read')
+    for tag in tags:
+        MostRead = tag.text.strip().split('\n')
+    return (MostRead)
 
 
 ## PART 3 (a) Define a function called get_umsi_data.  It should create a dictionary
@@ -59,16 +59,36 @@ def grab_headlines():
 ## requests.get(base_url, headers={'User-Agent': 'SI_CLASS'}) 
 
 def get_umsi_data():
-    pass
-    #Your code here
+   umsi_titles = dict()
+   url = 'https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All'
+   page = 0
+   while page < 13:
+        url_new = url + '&page=' + str(page)
+        result = requests.get(url_new, headers = {'User-Agent': 'SI_CLASS'})
+        html_directory = result.content
+        soup = BeautifulSoup(html_directory, 'html.parser')
+
+        tag_name = soup.find_all('div', class_='field-item even', property='dc:title')
+        tag_title = soup.find_all('div', class_='field field-name-field-person-titles field-type-text field-label-hidden')
+
+        title_match = 0
+        for name in tag_name:
+            umsi_titles[name.text] = tag_title[title_match].text
+            title_match += 1
+
+        page += 1
+   return umsi_titles
+
 
 ## PART 3 (b) Define a function called num_students.  
 ## INPUT: The dictionary from get_umsi_data().
 ## OUTPUT: Return number of PhD students in the data.  (Don't forget, I may change the input data)
 def num_students(data):
-    pass
-    #Your code here
-
+    phdstudents = 0
+    for key in data.keys():
+        if data.get(key) == 'PhD Student':
+            phdstudents += 1
+    return phdstudents
 
 
 ########### TESTS; DO NOT CHANGE ANY CODE BELOW THIS LINE! ###########
