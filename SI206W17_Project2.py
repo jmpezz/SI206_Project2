@@ -1,8 +1,8 @@
 ## SI 206 W17 - Project 2
 
 ## COMMENT HERE WITH:
-## Your name:
-## Anyone you worked with on this project:
+## Your name: Julia Pezzullo
+## Anyone you worked with on this project: Maheen Kahn, David Piper
 
 ## Below we have provided import statements, comments to separate out the 
 #parts of the project, instructions/hints/examples, and at the end, TESTS.
@@ -11,6 +11,7 @@
 
 ## Import statements
 import unittest
+import urllib
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -27,9 +28,12 @@ from bs4 import BeautifulSoup
 ## find_urls("the internet is awesome #worldwideweb") should return [], empty list
 
 def find_urls(s):
-    pass
-    #Your code here
-
+    URL_lst = []
+    line = re.findall('(ht\S+?.[^ ]*\s',s)
+    for link in line:
+        if '.' not in link:
+            line.remove(link)
+    return(x)
 
 
 ## PART 2  - Define a function grab_headlines.
