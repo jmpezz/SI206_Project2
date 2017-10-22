@@ -11,6 +11,7 @@
 
 ## Import statements
 import unittest
+import urllib
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -37,14 +38,14 @@ def find_urls(s):
 ## http://www.michigandaily.com/section/opinion
 
 def grab_headlines():
-    url = 'file:///Users/juliapezzullo/Downloads/SI206/Project2/opinion.html'
-    result = requests.get(url)
+    url = 'http://www.michigandaily.com/section/opinion'
+    html = urllib.request.urlopen(url).read()
 
-    soup = BeautifulSoup(result.text, 'html.parser')
-    tags = soup(class_ = 'view-most-read')
+    soup = BeautifulSoup(html, 'html.parser')
+    tags = soup('ol')
     for tag in tags:
         MostRead = tag.text.strip().split('\n')
-    return (MostRead)
+    return MostRead
 
 
 ## PART 3 (a) Define a function called get_umsi_data.  It should create a dictionary
@@ -59,25 +60,26 @@ def grab_headlines():
 ## requests.get(base_url, headers={'User-Agent': 'SI_CLASS'}) 
 
 def get_umsi_data():
-   umsi_titles = dict()
-   url = 'https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All'
-   page = 0
-   while page < 13:
+    umsi_titles = {} 
+    url = 'https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All'
+    page = 0
+    
+    while page < 13:
         url_new = url + '&page=' + str(page)
-        result = requests.get(url_new, headers = {'User-Agent': 'SI_CLASS'})
-        html_directory = result.content
-        soup = BeautifulSoup(html_directory, 'html.parser')
-
-        tag_name = soup.find_all('div', class_='field-item even', property='dc:title')
-        tag_title = soup.find_all('div', class_='field field-name-field-person-titles field-type-text field-label-hidden')
-
-        title_match = 0
-        for name in tag_name:
-            umsi_titles[name.text] = tag_title[title_match].text
-            title_match += 1
-
-        page += 1
-   return umsi_titles
+        html = requests.get(url_new, headers = {'User-Agent': 'SI_CLASS'})
+        soup = BeautifulSoup(html.content, 'html.parser')
+        
+        tag_names = soup.find_all('div', class_ = 'field-item even', property = 'dc:title')
+        tag_titles = soup.find_all('div', class_ = 'field field-name-field-person-titles field-type-text field-label-hidden')
+        
+        title_to_name = 0
+        for name in tag_names:
+            umsi_titles[name.text] = tag_titles[title_to_name].text 
+            title_to_name += 1
+        
+        page += 1 
+    
+    return umsi_titles
 
 
 ## PART 3 (b) Define a function called num_students.  
@@ -85,8 +87,8 @@ def get_umsi_data():
 ## OUTPUT: Return number of PhD students in the data.  (Don't forget, I may change the input data)
 def num_students(data):
     phdstudents = 0
-    for key in data.keys():
-        if data.get(key) == 'PhD Student':
+    for value in data.values():
+        if value == 'PhD student':
             phdstudents += 1
     return phdstudents
 
