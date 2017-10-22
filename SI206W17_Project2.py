@@ -60,26 +60,20 @@ def grab_headlines():
 ## requests.get(base_url, headers={'User-Agent': 'SI_CLASS'}) 
 
 def get_umsi_data():
-    umsi_titles = {} 
-    url = 'https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All'
-    page = 0
-    
-    while page < 13:
-        url_new = url + '&page=' + str(page)
-        html = requests.get(url_new, headers = {'User-Agent': 'SI_CLASS'})
-        soup = BeautifulSoup(html.content, 'html.parser')
-        
-        tag_names = soup.find_all('div', class_ = 'field-item even', property = 'dc:title')
-        tag_titles = soup.find_all('div', class_ = 'field field-name-field-person-titles field-type-text field-label-hidden')
-        
-        title_to_name = 0
-        for name in tag_names:
-            umsi_titles[name.text] = tag_titles[title_to_name].text 
-            title_to_name += 1
-        
-        page += 1 
-    
-    return umsi_titles
+   umsi_titles = {}
+   page = 0
+   while page <= 12:
+       url = requests.get('https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All&page=' + str(page), headers = {'User-Agent': 'SI_CLASS'}).text
+       soup = BeautifulSoup(url, 'html.parser')
+       names = soup.findAll('div', {'class': 'field field-name-title field-type-ds field-label-hidden'})
+       titles = soup.findAll('div', {'class': 'field field-name-field-person-titles field-type-text field-label-hidden'})
+       for i in range(20):
+            try:
+                umsi_titles[names[i].text] = titles[i].text
+            except IndexError:
+                pass
+       page += 1
+   return umsi_titles
 
 
 ## PART 3 (b) Define a function called num_students.  
