@@ -28,6 +28,7 @@ from bs4 import BeautifulSoup
 ## find_urls("the internet is awesome #worldwideweb") should return [], empty list
 
 def find_urls(s):
+    #creates and returns list of required data
     url_list = re.findall('http[s]?://\S*\.\S{2,}', s)
     return url_list
 
@@ -38,11 +39,13 @@ def find_urls(s):
 ## http://www.michigandaily.com/section/opinion
 
 def grab_headlines():
+    #opens url and creates beautiful soup object
     url = 'http://www.michigandaily.com/section/opinion'
     html = urllib.request.urlopen(url).read()
 
     soup = BeautifulSoup(html, 'html.parser')
     tags = soup('ol')
+    #gets text from tags and adds it to list, also removes white space
     for tag in tags:
         MostRead = tag.text.strip().split('\n')
     return MostRead
@@ -65,13 +68,16 @@ def get_umsi_data():
    while page <= 12:
        url = requests.get('https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All&page=' + str(page), headers = {'User-Agent': 'SI_CLASS'}).text
        soup = BeautifulSoup(url, 'html.parser')
+       #creates list of div tags with names and titles from soup object
        names = soup.findAll('div', {'class': 'field field-name-title field-type-ds field-label-hidden'})
        titles = soup.findAll('div', {'class': 'field field-name-field-person-titles field-type-text field-label-hidden'})
+       #adds name, title pairs to umsi_titles dictionary, using for loop to iterate through titles list
        for i in range(20):
             try:
                 umsi_titles[names[i].text] = titles[i].text
             except IndexError:
                 pass
+       #increments page         
        page += 1
    return umsi_titles
 
@@ -83,7 +89,7 @@ def num_students(data):
     phdstudents = 0
     for value in data.values():
         if value == 'PhD student':
-            phdstudents += 1
+            phdstudents += 1  #updates number of phd students as it iterates through the values
     return phdstudents
 
 
